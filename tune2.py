@@ -20,10 +20,10 @@ def fib(n):
         old, new = new, old + new
     return new
 
-scale = major_scale(start=72) # C
-harmony_scale = major_scale(start=48) # C
+scale = major_scale(start=58) # A
+harmony_scale = major_scale(start=34) # A
 
-duration_scale = list([.5, 1.])
+duration_scale = list([.5, 1., 1.5, 2.])
 
 channel  = 0
 time     = 0    # In beats
@@ -34,25 +34,27 @@ volume   = 90  # 0-127, as per the MIDI standard
 midi = MIDIFile(numTracks=2)
 #midi.addTempo(0, time, tempo)
 
-for i in range(50):
+next_note = 0.
+
+for i in range(72):
     fib_num = fib(i)
 
-    if i in range(24, 30):
-        scale_index = fib_num % len(scale) - 4
+    if i in range(24, 48):
+        scale_index = fib_num % len(scale) - 2
         duration = duration_scale[fib_num % len(duration_scale)]
     else:
-        scale_index = fib_num % len(scale)
+        scale_index = -1 * (fib_num % len(scale))
         duration = duration_scale[fib_num % len(duration_scale)]
 
     # melody
-    midi.addNote(0, channel, scale[scale_index], time + i, duration, volume)
+    if (i >= next_note):
+        midi.addNote(0, channel, scale[scale_index], time + i, duration, volume)
+        next_note = i + duration
     
     # harmony
     if i % 2 == 0:
-        midi.addNote(1, channel, harmony_scale[scale_index], time + i, .5, volume)
-        midi.addNote(1, channel, harmony_scale[(scale_index + 4) % len(harmony_scale)], time + i + .5, .5, volume)
-        midi.addNote(1, channel, harmony_scale[scale_index], time + i + 1., .5, volume)
-        midi.addNote(1, channel, harmony_scale[(scale_index + 4) % len(harmony_scale)], time + i + 1.5, .5, volume)
+        midi.addNote(1, channel, harmony_scale[scale_index], time + i, 1., volume)
+        midi.addNote(1, channel, harmony_scale[(scale_index + 4) % len(harmony_scale)], time + i + 1., 1., volume)
 
-with open("tune1.mid", "wb") as output_file:
+with open("tune2.mid", "wb") as output_file:
     midi.writeFile(output_file)
